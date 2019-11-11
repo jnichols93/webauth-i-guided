@@ -1,10 +1,10 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-
+const bcrypt = require('bcryptjs');
 const db = require('./database/dbConfig.js');
 const Users = require('./users/users-model.js');
-const bcrypt = require('bcryptjs');
+
 const server = express();
 
 server.use(helmet());
@@ -51,6 +51,21 @@ server.get('/api/users', (req, res) => {
     })
     .catch(err => res.send(err));
 });
+
+server.get('/hash', (req, res)=>{
+  // read a password from the Authorization header
+  const password = req.headers.authorization;
+
+//that 8 is how we slow down attackers trying to regenerate hashes
+  const hash = bcrypt.hashSync('password', 12); //the numberof rounds 2^8
+  // a good starting value is 14
+
+  res.status(200).json({ hash });
+
+  
+  // return an object with the password hashed using bcrypt.js
+  // {hash:'97845565954}
+})
 
 const port = process.env.PORT || 5000;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
